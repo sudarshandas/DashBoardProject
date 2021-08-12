@@ -1,0 +1,63 @@
+﻿@model DashBoardProject.Dtos.LoginDto
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dileep Dashboard | Log in</title>
+    <link rel="shortcut icon" href="~/favicon.ico" />
+
+    <link href="~/lib/twitter-bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />
+    <link href="~/Content/Styles/AdminLTE.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="box-body text-center bg-blue-gradient ">
+            <a href="#">
+                <img src="~/Content/Images/login-Logo.png" class="img-rounded" alt="Company Logo" />
+            </a>
+        </div>
+        <div class="login-box-body">
+
+            <p class="login-box-msg">Sign in to start your session</p>
+            <div class="row">
+                <div class="col-md-12">
+                    @using (Html.BeginForm())
+                    {
+                        <div class="form-group mb-3">
+                            <div class="input-group">
+                                <span class="fa fa-user input-group-text"></span>
+                                @Html.TextBoxFor(x => x.UserName, new { @class = "form-control", @placeholder = "User Name" })
+                            </div>
+                            @Html.ValidationMessageFor(x => x.UserName, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <div class="input-group">
+                                <span class="fa fa-lock input-group-text"></span>
+                                @Html.PasswordFor(x => x.UserPassword, new { @class = "form-control", @placeholder = "Password" })
+                            </div>
+                            @Html.ValidationMessageFor(x => x.UserPassword, "", new { @class = "text-danger" })
+                        </div>
+                        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+                        <input type="submit" value="Sign In" class="btn btn-primary btn-block btn-flat float-end" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/jquery-validate/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/lib/twitter-bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>

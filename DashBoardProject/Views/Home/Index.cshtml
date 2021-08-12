@@ -1,0 +1,313 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+@section head {
+    <script src="~/Scripts/common.js"></script>
+    <script src="~/Scripts/pages/dashboard.js"></script>
+    <link href="~/Content/Styles/style.css" rel="stylesheet" />
+    <style>
+        .icon {
+            -webkit-transition: all .3s linear;
+            -o-transition: all .3s linear;
+            transition: all .3s linear;
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            z-index: 0;
+            font-size: 90px;
+            color: rgba(0,0,0,0.15);
+        }
+    </style>
+}
+<section class="content-header">
+    <h1>
+        Dashboard
+    </h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#"><i class="fas fa-tachometer-alt"></i> Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+    </ol>
+</section>
+<section class="content">
+    <div id="divloading">
+    </div>
+    <div class="box box-danger">
+        <div class="box-header with-border">
+            <h3 class="box-title">Sale Summary</h3>
+
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Company</label>
+                        @Html.DropDownList("ChannelID", (SelectList)ViewBag.Channels,
+                                new
+                                {
+                                    @class = "form-control select2 w-100",
+                                    @id = "ChannelID",
+                                    @multiple = "multiple"
+                                })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <input id="spndaterangevalue" class="form-control" runat="server" type="text" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-primary mt-4" onclick="BindDashBoardData()">Submit</button>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-end text-bold" id="dashBoardTotal"></label>
+                </div>
+
+                <div class="col-lg-3 col-xs-6">
+                    <div class="card h-100 bg-aqua">
+                        <div class="card-body">
+                            <h3 class="d-inline fw-bold" id="pendingExportOrderValue">0</h3>
+                            <h3 class="float-end fw-bold" id="pendingExportOrderCount">0</h3>
+
+                            <p class="fw-bold" style="font-size:12px">Pending Orders as on Date</p>
+
+                            <h4 class="d-inline fw-bold" id="prevpendingExportOrderValue">0</h4>
+                            <h4 class="float-end fw-bold" id="prevpendingExportOrderCount">0</h4>
+
+                            <p class="fw-bold m-0" style="font-size:12px">Previous Pending Orders</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-shopping-cart"></i>
+                        </div>
+                        <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
+                            <input type="checkbox" checked="checked" onclick="DisplayDashBoardSumValue()" id="chkPendingExportOrder" class="form-check-input ms-0" />
+                            <a class="text-white pe-auto" style="cursor: pointer;"><i class="fa fa-info-circle"></i></a>
+                            <a class="text-white text-decoration-none pe-auto" style="cursor: pointer;">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6">
+                    <div class="card h-100 bg-yellow">
+                        <div class="card-body">
+                            <h3 class="d-inline fw-bold" id="GUDValue">0</h3>
+                            <h3 class="float-end fw-bold" id="GUDCount">0</h3>
+
+                            <p class="fw-bold" style="font-size:12px">GUD as on Date</p>
+
+                            <h4 class="d-inline fw-bold" id="prevGUDValue">0</h4>
+                            <h4 class="float-end fw-bold" id="prevGUDCount">0</h4>
+
+                            <p class="fw-bold m-0" style="font-size:12px">Previous GUD Data</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-truck"></i>
+                        </div>
+                        <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
+                            <input type="checkbox" checked="checked" onclick="DisplayDashBoardSumValue()" id="chkGUD" class="form-check-input ms-0" />
+                            <a class="text-white pe-auto" style="cursor: pointer;"><i class="fa fa-info-circle"></i></a>
+                            <a class="text-white text-decoration-none pe-auto" style="cursor: pointer;">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6">
+                    <div class="card h-100 bg-red">
+                        <div class="card-body">
+                            <h3 class="d-inline fw-bold" id="GITValue">0</h3>
+                            <h3 class="float-end fw-bold" id="GITCount">0</h3>
+
+                            <p class="fw-bold" style="font-size:12px">GIT as on Date</p>
+
+                            <h4 class="d-inline fw-bold" id="prevGITValue">0</h4>
+                            <h4 class="float-end fw-bold" id="prevGITCount">0</h4>
+
+                            <p class="fw-bold m-0" style="font-size:12px">Previous GIT Data</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-plane"></i>
+                        </div>
+                        <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
+                            <input type="checkbox" checked="checked" onclick="DisplayDashBoardSumValue()" id="chkGIT" class="form-check-input ms-0" />
+                            <a class="text-white pe-auto" style="cursor: pointer;"><i class="fa fa-info-circle"></i></a>
+                            <a class="text-white text-decoration-none pe-auto" style="cursor: pointer;">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6">
+                    <div class="card h-100 bg-green">
+                        <div class="card-body">
+                            <h3 class="d-inline fw-bold" id="ExportSalesValue">0</h3>
+                            <h3 class="float-end fw-bold" id="ExportSalesCount">0</h3>
+
+                            <p class="fw-bold" style="font-size:12px">Sales as on Date</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
+                            <input type="checkbox" checked="checked" onclick="DisplayDashBoardSumValue()" id="chkExportSales" class="form-check-input ms-0" />
+                            <a class="text-white pe-auto" style="cursor: pointer;"><i class="fa fa-info-circle"></i></a>
+                            <a class="text-white text-decoration-none pe-auto" style="cursor: pointer;">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-xs-6">
+                    <div class="card h-100 bg-green">
+                        <div class="card-body">
+                            <h3 class="d-inline fw-bold" id="DomesticSalesValue">0</h3>
+                            <h3 class="float-end fw-bold" id="DomesticSalesCount">0</h3>
+
+                            <p class="fw-bold" style="font-size:12px">Domestic Sales as on Date</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
+                            <input type="checkbox" checked="checked" onclick="DisplayDashBoardSumValue()" id="chkDomesticSales" class="form-check-input ms-0" />
+                            <a class="text-white pe-auto" style="cursor: pointer;"><i class="fa fa-info-circle"></i></a>
+                            <a class="text-white text-decoration-none pe-auto" style="cursor: pointer;">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6">
+                    <div class="card h-100 bg-aqua">
+                        <div class="card-body">
+                            <h3 class="d-inline fw-bold" id="DomesticPendingOrderValue">0</h3>
+                            <h3 class="float-end fw-bold" id="DomesticPendingOrderCount">0</h3>
+
+                            <p class="fw-bold" style="font-size:12px">Domestic Pending Orders as on Date</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-shopping-cart"></i>
+                        </div>
+                        <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
+                            <input type="checkbox"checked="checked" onclick="DisplayDashBoardSumValue()" id="chkDomesticPendingOrder" class="form-check-input ms-0" />
+                            <a class="text-white pe-auto" style="cursor: pointer;"><i class="fa fa-info-circle"></i></a>
+                            <a class="text-white text-decoration-none pe-auto" style="cursor: pointer;">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6">
+                    <div class="card h-100 bg-yellow">
+                        <div class="card-body">
+                            <h3 class="d-inline fw-bold" id="PCLedgerBalanceValue"></h3>
+                            <h3 class="float-end fw-bold" id="PCLedgerBalanceCount"></h3>
+
+                            <p class="fw-bold" style="font-size:12px">PC Ledger Balance</p>
+
+                            <h4 class="d-inline fw-bold" id="spnPCLedgerLastTransDate">0</h4>
+                            <h4 class="float-end fw-bold"></h4>
+
+                            <p class="fw-bold m-0" style="font-size:12px">Last entry Date</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
+                            <a class="invisible"><i class="fa fa-info-circle"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6">
+                    <div class="card h-100 bg-red">
+                        <div class="card-body">
+                            <h3 class="d-inline fw-bold" id="DomesticSaleEllementryValue">0</h3>
+                            <h3 class="float-end fw-bold" id="DomesticSaleEllementryCount">0</h3>
+
+                            <p class="fw-bold" style="font-size:12px">Ellementry Sales as on Date</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
+                            <input type="checkbox" checked="checked" onclick="DisplayDashBoardSumValue()" id="chkDomesticSaleEllementry" class="form-check-input ms-0" />
+                            <a class="text-white pe-auto" style="cursor: pointer;"><i class="fa fa-info-circle"></i></a>
+                            <a class="text-white text-decoration-none pe-auto" style="cursor: pointer;">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6">
+                    <div class="card h-100 bg-aqua">
+                        <div class="card-body">
+                            <h3 class="d-inline fw-bold" id="DomesticPendingOrderEllementryValue">0</h3>
+                            <h3 class="float-end fw-bold" id="DomesticPendingOrderEllementryCount">0</h3>
+
+                            <p class="fw-bold" style="font-size:12px">Ellementry Pending Orders as on Date</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-shopping-cart"></i>
+                        </div>
+                        <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
+                            <input type="checkbox" checked="checked" onclick="DisplayDashBoardSumValue()" id="chkDomesticPendingOrderEllementry" class="form-check-input ms-0" />
+                            <a class="text-white pe-auto" style="cursor: pointer;"><i class="fa fa-info-circle"></i></a>
+                            <a class="text-white text-decoration-none pe-auto" style="cursor: pointer;">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="col-lg-3 col-xs-6">
+                        <div class="card h-100 bg-yellow">
+                            <div class="card-body">
+                                <h3 class="d-inline fw-bold">0</h3>
+                                <h3 class="float-end fw-bold">0</h3>
+
+                                <p class="fw-bold" style="font-size:12px">Payment Due Date Surpassed</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fa fa-inr"></i>
+                            </div>
+                            <div class="card-footer border-0 p-1" style="background: rgba(0,0,0,0.1);">
+                                More info <i class="fa fa-arrow-circle-right"></i>
+                            </div>
+                        </div>
+                    </div>*@
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+    </div>
+
+</section>
+@section scripts {
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2()
+            $("#ChannelID > option").prop("selected", "selected");// Select All Options
+            $("#ChannelID").trigger("change");// Trigger change to select 2
+
+            SetDateRangePicker('spndaterangevalue', 0)
+
+            BindDashBoardData();
+
+            $('#daterange-btn').daterangepicker(
+                {
+                    ranges: {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    },
+                    startDate: moment().subtract(29, 'days'),
+                    endDate: moment()
+                },
+                function (start, end) {
+                    $('#daterange-btn span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'))
+                }
+            )
+        })
+    </script>
+}

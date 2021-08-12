@@ -1,0 +1,68 @@
+﻿@using DashBoardProject.Dtos
+@{
+    List<UserMenuDto> lstuserMenuDto = new List<UserMenuDto>();
+    if (Session["G_UserMenu"] != null)
+    {
+        lstuserMenuDto = Session["G_UserMenu"] as List<UserMenuDto>;
+
+        var parentMenu = lstuserMenuDto.Where(m => m.MenuName == m.ParentMenuName);
+
+        if (parentMenu != null)
+        {
+            foreach (var parentMenuItem in parentMenu)
+            {
+                var childMenu = lstuserMenuDto.Where(c => c.ParentMenuName == parentMenuItem.MenuName && c.MenuName != parentMenuItem.MenuName).OrderBy(x => x.DisplayName);
+
+                <li class="@(childMenu.Count() > 0? "treeview":"")">
+                    <a href="@Url.Action(parentMenuItem.ActionName, parentMenuItem.ControllerName)">
+                        <span>@parentMenuItem.DisplayName</span>
+                        @if (childMenu.Count() > 0)
+                        {
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        }
+
+                    </a>
+                    @if (childMenu.Count() > 0)
+                    {
+                        @AddChildItems(lstuserMenuDto, parentMenuItem.MenuName)
+                        @helper AddChildItems(IEnumerable<UserMenuDto> lstMenu, string ParentMenuName)
+                        {
+                            var childMenu = lstMenu.Where(c => c.ParentMenuName == ParentMenuName && c.MenuName != ParentMenuName).OrderBy(x => x.DisplayName);
+                            <ul class="treeview-menu">
+                                @foreach (var childMenuItem in childMenu)
+                                {
+                                    var innerChildMenu = lstMenu.Where(c => c.ParentMenuName == childMenuItem.MenuName && c.MenuName != childMenuItem.MenuName).OrderBy(x => x.DisplayName);
+                                    if (innerChildMenu.Count() == 0)
+                                    {
+                                        <li><a href="@Url.Action(childMenuItem.ActionName, childMenuItem.ControllerName)"><i class="fa fa-circle-o"></i> @childMenuItem.DisplayName</a></li>
+                                    }
+                                    else
+                                    {
+                                        <li class="treeview">
+                                            <a href="@Url.Action(childMenuItem.ActionName, childMenuItem.ControllerName)">
+                                                <span>@childMenuItem.DisplayName</span>
+                                                <span class="pull-right-container">
+                                                    <i class="fa fa-angle-left pull-right"></i>
+                                                </span>
+                                            </a>
+                                            @AddChildItems(lstMenu, childMenuItem.MenuName)
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        }
+                    }
+                </li>
+            }
+        }
+    }
+    <li>
+
+        @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
+        {
+        <a href="javascript:;" onclick="document.forms[0].submit();" style="padding:12px 5px 12px 18px"><i class="fas fa-sign-out-alt" style="width:25px;"></i><span>Sign out</span></a>
+        }
+    </li>
+}

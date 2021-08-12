@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "twitter-bootstrap@5.0.2",
+      "destination": "lib/twitter-bootstrap/"
+    },
+    {
+      "library": "font-awesome@5.15.3",
+      "destination": "lib/font-awesome/"
+    },
+    {
+      "library": "ionicons@5.5.2",
+      "destination": "lib/ionicons/"
+    },
+    {
+      "library": "iCheck@1.0.3",
+      "destination": "lib/iCheck/"
+    },
+    {
+      "library": "jquery@3.6.0",
+      "destination": "lib/jquery/"
+    },
+    {
+      "library": "jquery-validation-unobtrusive@3.2.12",
+      "destination": "lib/jquery-validation-unobtrusive/"
+    },
+    {
+      "library": "jquery-validate@1.19.3",
+      "destination": "lib/jquery-validate/"
+    },
+    {
+      "library": "jqueryui@1.12.1",
+      "destination": "lib/jqueryui/"
+    },
+    {
+      "library": "select2@4.0.13",
+      "destination": "lib/select2/"
+    },
+    {
+      "library": "bootstrap-daterangepicker@3.0.5",
+      "destination": "lib/bootstrap-daterangepicker/"
+    },
+    {
+      "library": "bootstrap-datepicker@1.9.0",
+      "destination": "lib/bootstrap-datepicker/"
+    }
+  ]
+}
