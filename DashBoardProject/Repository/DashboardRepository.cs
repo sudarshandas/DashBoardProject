@@ -1,4 +1,5 @@
 ﻿using DashBoardProject.Dtos;
+using DashBoardProject.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,6 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.DynamicData;
 
 namespace DashBoardProject.Repository
 {
@@ -65,7 +67,7 @@ namespace DashBoardProject.Repository
             DAL<DashboardCardDetailsDto> dal = new DAL<DashboardCardDetailsDto>();
             try
             {
-                var documentValue  = (await dal.GetSingleValue(sql, CommandType.StoredProcedure, arrSqlParam));
+                var documentValue = (await dal.GetSingleValue(sql, CommandType.StoredProcedure, arrSqlParam));
                 if (string.IsNullOrEmpty(documentValue))
                 {
                     dashboardCardDataDto.DocumentSumValue = 0;
@@ -262,7 +264,7 @@ namespace DashBoardProject.Repository
             string sql = string.Empty;
 
             sql = "select InvoiceNo As DocumentNo,SUM(ProdDocValueINR) as DocumentValue from GITData " +
-            "where ChannelID IN(select value from udf_SplitString(@channelID,',')) AND LRDate >= CONVERT(date, @fromDate, 103) "+
+            "where ChannelID IN(select value from udf_SplitString(@channelID,',')) AND LRDate >= CONVERT(date, @fromDate, 103) " +
             "AND LRDate < " + toDateString + " AND (BillLadingDate IS NULL " + dateCondition + ") and LRDate IS NOT NULL " +
             "group by InvoiceNo, ProdDocValueINR ";
 
@@ -556,6 +558,79 @@ namespace DashBoardProject.Repository
                 dashboardCardDataDto.DocumentSumValue = 0;
             }
             return dashboardCardDataDto;
+        }
+
+        public object GetColumnWiseSalesData(string channelID, string fromDate, string toDate, string dynamicColumns)
+        {
+            try
+            {
+                SqlParameter[] arrSqlParam = new SqlParameter[3]
+                {
+                    new SqlParameter()
+                    {
+                        ParameterName = "@channelID",
+                        SqlDbType = SqlDbType.NVarChar,
+                        Value = channelID
+                    },
+                    new SqlParameter()
+                    {
+                        ParameterName = "@fromDate",
+                        SqlDbType = SqlDbType.NVarChar,
+                        Value = fromDate
+                    },
+                    new SqlParameter()
+                    {
+                        ParameterName = "@toDate",
+                        SqlDbType = SqlDbType.NVarChar,
+                        Value = toDate
+                    }
+                };
+
+                string sql = string.Empty;
+                sql = "select #COLUMNS# ,convert(varchar(12), cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 4))) + 'Cr' AS Value " +
+                "from ExportSalesData " +
+                "where BILLLADINGDate >= CONVERT(date, @fromDate, 103) AND BILLLADINGDate < Dateadd(DAY, 1,CONVERT(date, @toDate, 103)) " +
+                "AND (ChannelID in(select value from udf_SplitString(@channelID,',')) " +
+                "OR DelChannelID in(select value from udf_SplitString(@channelID,','))) " +
+                "GROUP BY #COLUMNS# having cast(sum(ProdDocValueINR/ 10000000) AS decimal(19, 4))>0 ORDER BY #COLUMNS#";
+
+                sql = sql.Replace("#COLUMNS#", dynamicColumns);
+
+                DynamicClassBuilder dynamicClassBuilder = new DynamicClassBuilder("ExportSaleColumnWise");
+
+                // Hardcoaded value is adding as it is specified in the sql with dynamic columns
+                string columns = dynamicColumns + ",Value";
+
+                string[] arrColumns = columns.Split(',');
+
+                Type[] types = new Type[arrColumns.Length];
+
+                for (int i = 0; i <= arrColumns.Length - 1; i++)
+                {
+                    types[i] = typeof(string);
+                }
+
+                object dynamicClass = dynamicClassBuilder.CreateObject(arrColumns, types);
+                var type = dynamicClass.GetType();
+                var typeToCreate = typeof(DAL<>).MakeGenericType(type);
+                var methodToCall = typeToCreate.GetMethod("GetRecords");
+                var genericClassInstance = Activator.CreateInstance(typeToCreate);
+
+                object[] arrParamObject = new object[3]
+                {
+                    sql,
+                    CommandType.Text,
+                    arrSqlParam
+                };
+
+                dynamic records = methodToCall.Invoke(genericClassInstance, arrParamObject);
+
+                return records.Result;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
     }
 }

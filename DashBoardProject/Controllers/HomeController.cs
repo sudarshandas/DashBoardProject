@@ -131,5 +131,31 @@ namespace DashBoardProject.Controllers
 
             return Json(dashboardCardDataDtos, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet]
+        public async Task<ActionResult> ColumnWiseSalesData(string company, string daterange, string columns)
+        {
+            List<DashboardCardDataDto> dashboardCardDataDtos = new List<DashboardCardDataDto>();
+            string strFromDate = string.Empty;
+            string strTodate = string.Empty;
+            string parentChildCompany = string.Empty;
+            string[] arrdaterange;
+            string fromDate = string.Empty;
+            string toDate = string.Empty;
+
+            if (string.IsNullOrEmpty(company))
+            {
+                return null;
+            }
+            parentChildCompany = await commonRepo.GetParentChildCompany(company);
+
+            arrdaterange = daterange.Split(new string[] { "-" }, StringSplitOptions.None);
+            fromDate = arrdaterange[0].Trim();
+            toDate = arrdaterange[1].Trim();
+
+            var result = dashboardRepo.GetColumnWiseSalesData(parentChildCompany, fromDate, toDate, columns);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
     }
 }

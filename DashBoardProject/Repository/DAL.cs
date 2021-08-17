@@ -10,7 +10,7 @@ using System.Web;
 
 namespace DashBoardProject.Repository
 {
-    public class DAL<T> where T : new()
+    public class DAL<T> //where T : new()
     {
         private readonly string connectionString;
         public DAL()

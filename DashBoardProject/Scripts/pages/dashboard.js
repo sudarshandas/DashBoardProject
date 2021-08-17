@@ -147,8 +147,6 @@ function BindDashBoardData() {
             }
             $('#DomesticPendingOrderEllementryCount').html(DomesticPendingOrderEllementry[0].DocumentCount);
             //onSuccessBindDashBoardData(response.d, "spnPendingOrderValue", "spnPendingOrderCount", "ContentPlaceHolderBody_hfPendingOrderValue", "ContentPlaceHolderBody_hfPendingOrderCount");
-            //$('#divloading').removeClass('loading');
-            //DisplayDashBoardSumValue();
 
             $('#divloading').removeClass('loading');
             DisplayDashBoardSumValue();
@@ -171,21 +169,21 @@ function DisplayDashBoardSumValue() {
     debugger;
 
     if (document.getElementById("chkPendingExportOrder").checked == true) {
-        if ($('#' + "pendingExportOrderValue").text() != "0") {
+        if ($('#pendingExportOrderValue').text() != "0") {
             strValue = $('#' + "pendingExportOrderValue").text();
             dblSumValue += parseFloat(strValue);
         }
     }
 
     if (document.getElementById("chkGUD").checked == true) {
-        if ($('#' + "GUDValue").text() != "0") {
+        if ($('#GUDValue').text() != "0") {
             strValue = $('#' + "GUDValue").text();
             dblSumValue += parseFloat(strValue);
         }
     }
 
     if (document.getElementById("chkGIT").checked == true) {
-        if ($('#' + "GITValue").text() != "0") {
+        if ($('#GITValue').text() != "0") {
             strValue = $('#' + "GITValue").text();
             dblSumValue += parseFloat(strValue);
         }
@@ -199,28 +197,28 @@ function DisplayDashBoardSumValue() {
     }
 
     if (document.getElementById("chkDomesticSales").checked == true) {
-        if ($('#' + "DomesticSalesValue").text() != "0") {
+        if ($('#DomesticSalesValue').text() != "0") {
             strValue = $('#' + "DomesticSalesValue").text();
             dblSumValue += parseFloat(strValue);
         }
     }
 
     if (document.getElementById("chkDomesticPendingOrder").checked == true) {
-        if ($('#' + "DomesticPendingOrderValue").text() != "0") {
+        if ($('#DomesticPendingOrderValue').text() != "0") {
             strValue = $('#' + "DomesticPendingOrderValue").text();
             dblSumValue += parseFloat(strValue);
         }
     }
 
     if (document.getElementById("chkDomesticSaleEllementry").checked == true) {
-        if ($('#' + "DomesticSaleEllementryValue").text() != "0") {
+        if ($('#DomesticSaleEllementryValue').text() != "0") {
             strValue = $('#' + "DomesticSaleEllementryValue").text();
             dblSumValue += parseFloat(strValue);
         }
     }
 
     if (document.getElementById("chkDomesticPendingOrderEllementry").checked == true) {
-        if ($('#' + "DomesticPendingOrderEllementryValue").text() != "0") {
+        if ($('#DomesticPendingOrderEllementryValue').text() != "0") {
             strValue = $('#' + "DomesticPendingOrderEllementryValue").text();
             dblSumValue += parseFloat(strValue);
         }

@@ -16,5 +16,6 @@ namespace DashBoardProject.Repository
         Task<DashboardCardDataDto> GetDomesticSalesData(string channelID, string fromDate, string toDate, int customerType);
         Task<DashboardCardDataDto> GetDomesticPendingOrderData(string channelID, string fromDate, string toDate, int customerType);
         Task<DashboardCardDataDto> GetPCLedgerBalanceData(string channelID, string fromDate, string toDate);
+        object GetColumnWiseSalesData(string channelID, string fromDate, string toDate, string dynamicColumns);
     }
 }
