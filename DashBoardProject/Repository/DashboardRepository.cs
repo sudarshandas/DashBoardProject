@@ -1,4 +1,5 @@
 ﻿using DashBoardProject.Dtos;
+using DashBoardProject.Extensions;
 using DashBoardProject.Helpers;
 using System;
 using System.Collections.Generic;
@@ -560,7 +561,7 @@ namespace DashBoardProject.Repository
             return dashboardCardDataDto;
         }
 
-        public object GetColumnWiseSalesData(string channelID, string fromDate, string toDate, string dynamicColumns)
+        public async Task<object> GetColumnWiseSalesData(string channelID, string fromDate, string toDate, string dynamicColumns)
         {
             try
             {
@@ -601,31 +602,11 @@ namespace DashBoardProject.Repository
                 // Hardcoaded value is adding as it is specified in the sql with dynamic columns
                 string columns = dynamicColumns + ",Value";
 
-                string[] arrColumns = columns.Split(',');
+                object[] arrParamObject = new object[3] { sql, CommandType.Text, arrSqlParam };
 
-                Type[] types = new Type[arrColumns.Length];
+                var records = await dynamicClassBuilder.CallMethodByReflection("GetRecords", columns, arrParamObject);
 
-                for (int i = 0; i <= arrColumns.Length - 1; i++)
-                {
-                    types[i] = typeof(string);
-                }
-
-                object dynamicClass = dynamicClassBuilder.CreateObject(arrColumns, types);
-                var type = dynamicClass.GetType();
-                var typeToCreate = typeof(DAL<>).MakeGenericType(type);
-                var methodToCall = typeToCreate.GetMethod("GetRecords");
-                var genericClassInstance = Activator.CreateInstance(typeToCreate);
-
-                object[] arrParamObject = new object[3]
-                {
-                    sql,
-                    CommandType.Text,
-                    arrSqlParam
-                };
-
-                dynamic records = methodToCall.Invoke(genericClassInstance, arrParamObject);
-
-                return records.Result;
+                return records;
             }
             catch (Exception ex)
             {

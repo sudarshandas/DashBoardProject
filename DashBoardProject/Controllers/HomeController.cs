@@ -153,9 +153,13 @@ namespace DashBoardProject.Controllers
             fromDate = arrdaterange[0].Trim();
             toDate = arrdaterange[1].Trim();
 
-            var result = dashboardRepo.GetColumnWiseSalesData(parentChildCompany, fromDate, toDate, columns);
+            dynamic result = await dashboardRepo.GetColumnWiseSalesData(parentChildCompany, fromDate, toDate, columns);
 
-            return Json(result, JsonRequestBehavior.AllowGet);
+            int totalRecords = result.Count;
+
+            var data = result;
+
+            return Json(new { recordsTotal = totalRecords, recordsFiltered = totalRecords, data = data }, JsonRequestBehavior.AllowGet);
         }
     }
 }

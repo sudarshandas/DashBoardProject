@@ -1,8 +1,11 @@
-﻿using System;
+﻿using DashBoardProject.Extensions;
+using DashBoardProject.Repository;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace DashBoardProject.Helpers
@@ -81,6 +84,28 @@ namespace DashBoardProject.Helpers
 
             propertyBuilder.SetGetMethod(getPropMthdBldr);
             propertyBuilder.SetSetMethod(setPropMthdBldr);
+        }
+
+        public async Task<object> CallMethodByReflection(string methodToBeInvoked, string dynamicColumns, params object[] parameters)
+        {
+            string[] arrColumns = dynamicColumns.Split(',');
+
+            Type[] types = new Type[arrColumns.Length];
+
+            for (int i = 0; i <= arrColumns.Length - 1; i++)
+            {
+                types[i] = typeof(string);
+            }
+
+            object dynamicClass = CreateObject(arrColumns, types);
+            var type = dynamicClass.GetType();
+            var typeToCreate = typeof(DAL<>).MakeGenericType(type);
+            var methodToCall = typeToCreate.GetMethod(methodToBeInvoked);
+            var genericClassInstance = Activator.CreateInstance(typeToCreate);
+
+            var records = await methodToCall.InvokeAsync(genericClassInstance, parameters);
+
+            return records;
         }
     }
 }

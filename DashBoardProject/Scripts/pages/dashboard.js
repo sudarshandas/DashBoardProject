@@ -15,8 +15,29 @@ function GetSelectedCompany(controlid) {
     return items;
 }
 
+function GetSelectedColumns(controlid) {
+    var items = "";
+    var x = document.getElementById(controlid);
+    for (var i = 0; i < x.options.length; i++) {
+        if (x.options[i].selected) {
+            if (items == "") {
+                items = x.options[i].value;
+            }
+            else {
+                items += "," + x.options[i].value;
+            }
+
+        }
+    }
+    return items;
+}
+
 function GetDateRangeValue(controlid) {
     return $('#' + controlid + '').val();;
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 //Bind dash board data
@@ -36,6 +57,7 @@ function BindDashBoardData() {
         dataType: "json",
 
         success: function (response) {
+            $('#divloading').addClass('loading');
             console.log(response);
 
             var exportOrder = response.filter(obj => {
@@ -73,7 +95,7 @@ function BindDashBoardData() {
                 $('#prevGUDValue').append('<sup>Cr</sup>');
             }
             $('#prevGUDCount').html(prevGUDData[0].DocumentCount);
-            
+
             var GITData = response.filter(obj => {
                 return obj.CardType === 3 && obj.IsPreviousFY == false
             })
@@ -159,6 +181,52 @@ function BindDashBoardData() {
         complete: function () {
             console.log("Order Data Fetching Complete: " + new Date($.now()));
             //handleComplete();
+        }
+    });
+
+
+
+    //$('#ExportSales').empty();
+    //$('#ExportSales tbody').empty();
+    $('#divloading').addClass('loading');
+    var selectedColumns = GetSelectedColumns('columns-selection');
+    var selectedchannelId = GetSelectedCompany('ExportSalesChannelID');
+    $.ajax({
+        type: 'GET',
+        dataType: 'json',
+        url: '/Home/ColumnWiseSalesData',
+        data: { company: selectedchannelId, daterange: daterange, columns: selectedColumns },
+        success: function (data) {
+            $('#divloading').addClass('loading');
+            if ($.fn.DataTable.fnIsDataTable($('#ExportSales'))) {
+                $('#ExportSales').DataTable().destroy();
+                $('#ExportSales').find('thead').remove();
+                $('#ExportSales').find('tbody').remove();
+
+            }
+            console.log(data);
+
+            var columns = [];
+            //data = JSON.parse(data);
+            var columnNames = Object.keys(data.data[0]);
+            console.log(columnNames);
+            for (var i in columnNames) {
+                columns.push({
+                    data: columnNames[i],
+                    title: capitalizeFirstLetter(columnNames[i])
+                });
+            }
+            console.log(columns);
+            console.log(data.data);
+            $('#ExportSales').DataTable({
+                fixedHeader: true,
+                data: data.data,
+                columns: columns
+            });
+
+            $('#ExportSales').find('thead').addClass("bg-orange");
+
+            $('#divloading').removeClass('loading');
         }
     });
 }

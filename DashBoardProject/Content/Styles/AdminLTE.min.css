@@ -2859,7 +2859,7 @@ a {
     .product-list-in-box > .item:last-of-type {
         border-bottom-width: 0;
     }
-
+/*
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
     border-top: 1px solid #f4f4f4;
 }
@@ -2903,7 +2903,7 @@ table.text-center, table.text-center td, table.text-center th {
 .label-default {
     background-color: #d2d6de;
     color: #444;
-}
+}*/
 
 .direct-chat .box-body {
     border-bottom-right-radius: 0;
@@ -5287,13 +5287,13 @@ hr {
         width: 33.3333333%;
     }
 
-    .table-responsive {
+/*    .table-responsive {
         overflow: auto;
     }
 
         .table-responsive > .table tr th, .table-responsive > .table tr td {
             white-space: normal !important;
-        }
+        }*/
 }
 
 .sidebar a {

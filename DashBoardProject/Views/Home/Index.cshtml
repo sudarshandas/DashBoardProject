@@ -18,6 +18,7 @@
             font-size: 90px;
             color: rgba(0,0,0,0.15);
         }
+
     </style>
 }
 <section class="content-header">
@@ -191,7 +192,7 @@
                             <i class="fa fa-shopping-cart"></i>
                         </div>
                         <div class="card-footer border-0 p-1 form-check mb-0 d-flex justify-content-between" style="background: rgba(0,0,0,0.1);">
-                            <input type="checkbox"checked="checked" onclick="DisplayDashBoardSumValue()" id="chkDomesticPendingOrder" class="form-check-input ms-0" />
+                            <input type="checkbox" checked="checked" onclick="DisplayDashBoardSumValue()" id="chkDomesticPendingOrder" class="form-check-input ms-0" />
                             <a class="text-white pe-auto" style="cursor: pointer;"><i class="fa fa-info-circle"></i></a>
                             <a class="text-white text-decoration-none pe-auto" style="cursor: pointer;">Detail <i class="fa fa-arrow-circle-right"></i></a>
                         </div>
@@ -274,6 +275,65 @@
             </div>
         </div>
     </div>
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="box-title">Export Sales</h3>
+
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Company</label>
+                        @Html.DropDownList("ChannelID", (SelectList)ViewBag.Channels,
+                                new
+                                {
+                                    @class = "form-control select2 w-100",
+                                    @id = "ExportSalesChannelID",
+                                    @multiple = "multiple"
+                                })
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <input id="spndaterangevalueExportSales" class="form-control" runat="server" type="text" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="form-label">Select column</label>
+                        <select id="columns-selection" multiple="multiple" class="form-control select2 w-100">
+                            <option value="CompanyName" selected="selected">Company</option>
+                            <option value="MerchantName">Merchant</option>
+                            <option value="CustomerName">Customer</option>
+                            <option value="CountryName">Country</option>
+                            <option value="DesignerName">Designer</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-primary mt-4" onclick="BindDashBoardData()">Submit</button>
+                    <button type="button" class="btn btn-primary mt-4" onclick="ChangePageLength()">change</button>
+                </div>
+                <div class="col-12">
+                    <div class="table-responsive-md">
+                        <table class="table table-bordered table-striped table-hover jQuery-datatable" id="ExportSales" style="width:100%">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
 
     </div>
@@ -287,8 +347,11 @@
             $("#ChannelID > option").prop("selected", "selected");// Select All Options
             $("#ChannelID").trigger("change");// Trigger change to select 2
 
-            SetDateRangePicker('spndaterangevalue', 0)
+            $("#ExportSalesChannelID > option").prop("selected", "selected");// Select All Options
+            $("#ExportSalesChannelID").trigger("change");// Trigger change to select 2
 
+            SetDateRangePicker('spndaterangevalue', 0)
+            SetDateRangePicker('spndaterangevalueExportSales', 0)
             BindDashBoardData();
 
             $('#daterange-btn').daterangepicker(
@@ -309,5 +372,11 @@
                 }
             )
         })
+
+        function ChangePageLength() {
+            //console.log($('#ExportSales').DataTable().page.len())
+            //$('#ExportSales').DataTable().page.len(50).draw();
+            $('#ExportSales').DataTable().draw();
+        }
     </script>
 }

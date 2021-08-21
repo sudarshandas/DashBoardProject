@@ -234,6 +234,8 @@
     <Content Include="lib\bootstrap-daterangepicker\daterangepicker.min.css" />
     <Content Include="lib\bootstrap-daterangepicker\daterangepicker.min.js" />
     <Content Include="lib\bootstrap-daterangepicker\moment.min.js" />
+    <Content Include="lib\datatables.net\jquery.dataTables.js" />
+    <Content Include="lib\datatables.net\jquery.dataTables.min.js" />
     <Content Include="lib\font-awesome\css\all.css" />
     <Content Include="lib\font-awesome\css\all.min.css" />
     <Content Include="lib\font-awesome\css\brands.css" />
@@ -5250,11 +5252,13 @@
     <Compile Include="Dtos\DashboardCardDetailsDto.cs" />
     <Compile Include="Dtos\LoginDto.cs" />
     <Compile Include="Dtos\UserMenuDto.cs" />
+    <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="Extensions\IDataRecordExtensions.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\DynamicClassBuilder.cs" />
+    <Compile Include="Helpers\Utility.cs" />
     <Compile Include="Models\Channels.cs" />
     <Compile Include="Models\Users.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -5409,6 +5413,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="lib\datatables\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -616,12 +616,17 @@ throw new Error('AdminLTE requires jQuery')
     if (windowWidth <= this.options.collapseScreenSize) {
       isOpen = $('body').hasClass(ClassName.open);
     }
-
+     
     if (!isOpen) {
       this.open();
     } else {
       this.close();
     }
+
+      var dataTable = $('.jQuery-datatable');
+      if (dataTable) {
+          dataTable.DataTable().page.len(10).draw();
+      }
   };
 
   PushMenu.prototype.open = function () {

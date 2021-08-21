@@ -39,7 +39,7 @@
     }
     catch (Exception)
     {
-        
+
         IPHostEntry ipEntry = Dns.GetHostEntry(Dns.GetHostName());
         IPAddress[] addr = ipEntry.AddressList;
         ip = addr[addr.Length - 1];
@@ -64,6 +64,11 @@
     <link href="~/Content/Styles/skins/_all-skins.min.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+    @*<link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />*@
+    <link href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
+    @*<link href="~/lib/datatables/css/dataTables.bootstrap4.min.css" rel="stylesheet" />*@
+    <link href="https://cdn.datatables.net/fixedheader/3.1.9/css/fixedHeader.bootstrap5.min.css" rel="stylesheet" type="text/css" />
 
     @RenderSection("head", required: false)
 </head>
@@ -122,8 +127,14 @@
 
     <script src="~/lib/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 
-    <script src="~/Scripts/adminlte.min.js"></script>
+    @*<script src="~/Scripts/adminlte.min.js"></script>*@
+    <script src="~/Scripts/adminlte.js"></script>
     <script src="~/Scripts/demo.js"></script>
+
+    <script src="~/lib/datatables.net/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedheader/3.1.9/js/dataTables.fixedHeader.min.js"></script>
+
     @RenderSection("scripts", required: false)
 </body>
 </html>

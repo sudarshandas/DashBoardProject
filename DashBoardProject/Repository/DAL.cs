@@ -10,7 +10,7 @@ using System.Web;
 
 namespace DashBoardProject.Repository
 {
-    public class DAL<T> //where T : new()
+    public class DAL<T> where T : new()
     {
         private readonly string connectionString;
         public DAL()
@@ -38,7 +38,7 @@ namespace DashBoardProject.Repository
                 {
                     while (await rdr.ReadAsync())
                     {
-                        lstItems.Add(Map<T>(rdr));
+                        lstItems.Add(Map(rdr));
                     }
                 }
                 con.Close();
@@ -69,7 +69,7 @@ namespace DashBoardProject.Repository
                     while (await rdr.ReadAsync())
                     {
                         hasValue = true;
-                        item = Map<T>(rdr);
+                        item = Map(rdr);
                         break;
                     }
                 }
@@ -114,20 +114,7 @@ namespace DashBoardProject.Repository
             }
         }
 
-        public IEnumerable<T> ToList(IDbCommand command)
-        {
-            using (var record = command.ExecuteReader())
-            {
-                List<T> items = new List<T>();
-                while (record.Read())
-                {
-                    items.Add(Map<T>(record));
-                }
-                return items;
-            }
-        }
-
-        public T Map<T>(IDataRecord record)
+        public T Map(IDataRecord record)
         {
             var objT = Activator.CreateInstance<T>();
             try
