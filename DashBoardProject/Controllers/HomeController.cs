@@ -4,6 +4,7 @@ using DashBoardProject.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -160,6 +161,44 @@ namespace DashBoardProject.Controllers
             var data = result;
 
             return Json(new { recordsTotal = totalRecords, recordsFiltered = totalRecords, data = data }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> DashboardDataDetails( string company, string daterange, int cardType)
+        {
+            List<DashboardCardDataDto> dashboardCardDataDtos = new List<DashboardCardDataDto>();
+            string strFromDate = string.Empty;
+            string strTodate = string.Empty;
+            string parentChildCompany = string.Empty;
+            string[] arrdaterange;
+            string fromDate = string.Empty;
+            string toDate = string.Empty;
+
+            if (string.IsNullOrEmpty(company))
+            {
+                return null;
+            }
+
+            if(cardType == 6 || cardType == 9)
+            {
+                parentChildCompany = company;
+            }
+            else
+            {
+                parentChildCompany = await commonRepo.GetParentChildCompany(company);
+            }
+
+            arrdaterange = daterange.Split(new string[] { "-" }, StringSplitOptions.None);
+            fromDate = arrdaterange[0].Trim();
+            toDate = arrdaterange[1].Trim();
+
+            var result = await dashboardRepo.GetDashboardCardDetailsByCardType(parentChildCompany, fromDate, toDate, cardType);
+
+            int totalRecords = result.Count;
+
+            var data = result;
+
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
     }
 }

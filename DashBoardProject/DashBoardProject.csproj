@@ -105,6 +105,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Images\ajax-loader.gif" />
+    <Content Include="Content\Images\details_close.png" />
+    <Content Include="Content\Images\details_open.png" />
     <Content Include="Content\Styles\AdminLTE.min.css" />
     <Content Include="Content\Images\login-Logo.png" />
     <Content Include="Content\Styles\skins\skin-black-light.css" />
@@ -5250,6 +5252,8 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Dtos\DashboardCardDataDto.cs" />
     <Compile Include="Dtos\DashboardCardDetailsDto.cs" />
+    <Compile Include="Dtos\DashboardCardInfoDetailsDto.cs" />
+    <Compile Include="Dtos\DashboardCardMoreInfoDetailsDto.cs" />
     <Compile Include="Dtos\LoginDto.cs" />
     <Compile Include="Dtos\UserMenuDto.cs" />
     <Compile Include="Extensions\ExtensionMethods.cs" />

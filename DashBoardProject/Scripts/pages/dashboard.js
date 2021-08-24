@@ -37,7 +37,7 @@ function GetDateRangeValue(controlid) {
 }
 
 function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    return (string.charAt(0).toUpperCase() + string.slice(1)).replace(/([A-Z])/g, ' $1').trim();
 }
 
 //Bind dash board data
@@ -58,7 +58,7 @@ function BindDashBoardData() {
 
         success: function (response) {
             $('#divloading').addClass('loading');
-            console.log(response);
+            //console.log(response);
 
             var exportOrder = response.filter(obj => {
                 return obj.CardType === 1 && obj.IsPreviousFY == false
@@ -175,11 +175,11 @@ function BindDashBoardData() {
         },
         error: function (response) {
             //ShowPopup('Error in Operation', 'Error in Operation - ' + response, 'PopUpMessage');
-            console.log('Error in Operation - ' + response);
+            //console.log('Error in Operation - ' + response);
             $('#divloading').removeClass('loading');
         },
         complete: function () {
-            console.log("Order Data Fetching Complete: " + new Date($.now()));
+            //console.log("Order Data Fetching Complete: " + new Date($.now()));
             //handleComplete();
         }
     });
@@ -204,20 +204,20 @@ function BindDashBoardData() {
                 $('#ExportSales').find('tbody').remove();
 
             }
-            console.log(data);
+            //console.log(data);
 
             var columns = [];
             //data = JSON.parse(data);
             var columnNames = Object.keys(data.data[0]);
-            console.log(columnNames);
+            //console.log(columnNames);
             for (var i in columnNames) {
                 columns.push({
                     data: columnNames[i],
                     title: capitalizeFirstLetter(columnNames[i])
                 });
             }
-            console.log(columns);
-            console.log(data.data);
+            //console.log(columns);
+            //console.log(data.data);
             $('#ExportSales').DataTable({
                 fixedHeader: true,
                 data: data.data,
@@ -299,4 +299,137 @@ function DisplayDashBoardSumValue() {
         document.getElementById("dashBoardTotal").innerText = "";
     }
 
+}
+
+function ShowDetailsByCardType(cardType, modalTitleText) {
+    $('#divloading').addClass('loading');
+    var selectedcompany = GetSelectedCompany('ChannelID');
+    var daterange = GetDateRangeValue('spndaterangevalue');
+    $.ajax({
+        type: "GET",
+        url: "/Home/DashboardDataDetails",
+        data: { company: selectedcompany, daterange: daterange, cardType: cardType },
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (response) {
+            //console.log(response);
+            if ($.fn.DataTable.fnIsDataTable($('#moreInfo'))) {
+                $('#moreInfo').DataTable().destroy();
+                $('#moreInfo').find('tbody').remove();
+            }
+
+            if ($.fn.DataTable.fnIsDataTable($('#moreInfo-with-child'))) {
+                $('#moreInfo-with-child').DataTable().destroy();
+                $('#moreInfo-with-child').find('tbody').remove();
+            }
+
+            if (cardType == 2 || cardType == 3 || cardType == 4) {
+                $("#moreInfo").addClass('d-none');
+                $("#moreInfo-with-child").removeClass('d-none');
+
+                var table = $("#moreInfo-with-child").DataTable({
+                    searching: false,
+                    paging: false,
+                    data: response,
+                    columns: [
+                        {
+                            "className": 'details-control',
+                            "orderable": false,
+                            'data': null,
+                            "defaultContent": ''
+                        },
+                        { 'data': 'CompanyName' },
+                        { 'data': 'Value' }
+                    ],
+                    "order": [[1, 'asc']]
+                });
+                
+                $('#moreInfo-with-child tbody td.details-control').each(function () {
+                    debugger;
+                    var tr = $(this).closest('tr');
+                    var row = table.row(tr);
+
+                    if (row.data().hasChildChannel == false) {
+                        tr.removeClass('details-control');
+                        tr.children('td:first').removeClass('details-control');
+                    }
+                });
+
+                $('#moreInfo-with-child tbody').on('click', 'td.details-control', function () {
+                    debugger;
+                    var tr = $(this).closest('tr');
+                    var row = table.row(tr);
+
+                    if (row.child.isShown()) {
+                        // This row is already open - close it
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    }
+                    else {
+                        // Open this row
+                        var rowid = row.data().ChannelId;
+                        row.child(format(rowid)).show();
+                        tr.addClass('shown');
+
+                        var childData = row.data().childInfo;
+                        $('table#' + rowid).DataTable({
+                            data: childData,
+                            paging: false,
+                            info: false,
+                            searching: false,
+                            "columns": [
+                                { "data": "UnitName" },
+                                { "data": "Value" },
+                            ]
+                        });
+
+                        $('#' + rowid).find('thead').addClass("bg-info text-white");
+                    }
+                });
+
+                $('#moreInfo-with-child').find('thead').addClass("bg-primary text-white");
+            }
+            else {
+                $("#moreInfo").removeClass('d-none');
+                $("#moreInfo-with-child").addClass('d-none');
+
+                $("#moreInfo").DataTable({
+                    paging: false,
+                    data: response,
+                    columns: [
+                        { 'data': 'CompanyName' },
+                        { 'data': 'Value' }
+                    ],
+                    "order": [[1, 'asc']]
+                });
+            }
+
+            $('#moreInfo').find('thead').addClass("bg-primary text-white");
+        },
+        failure: function (response) {
+            $('#divloading').removeClass('loading');
+            //alert(response);
+        },
+        error: function (response) {
+            $('#divloading').removeClass('loading');
+            //alert(response);
+        },
+        complete: function () {
+            $('#divloading').removeClass('loading');
+            $('#moreInfoModal').modal('show');
+            var moreInfoModal = document.getElementById('moreInfoModal')
+
+            var modalTitle = moreInfoModal.querySelector('.modal-title');
+            modalTitle.textContent = modalTitleText;
+        }
+    });
+}
+
+function format(table_id) {
+    return '<table id="' + table_id + '" class="display table table-bordered table-striped table-hover jQuery-datatable border-info" border="0" style="width:100%;">' +
+        '<thead>' +
+        '<th>Unit Name</th>' +
+        '<th>Value</th>' +
+        '</thead>' +
+        '</table>';
 }

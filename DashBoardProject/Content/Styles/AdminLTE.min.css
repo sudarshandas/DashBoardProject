@@ -5287,7 +5287,7 @@ hr {
         width: 33.3333333%;
     }
 
-/*    .table-responsive {
+    /*    .table-responsive {
         overflow: auto;
     }
 
@@ -5298,4 +5298,15 @@ hr {
 
 .sidebar a {
     text-decoration: none;
+}
+
+td.details-control {
+    background: url('../Images/details_open.png') no-repeat center center;
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+}
+
+tr.shown td.details-control {
+    background: url('../Images/details_close.png') no-repeat center center;
 }

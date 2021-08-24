@@ -613,5 +613,207 @@ namespace DashBoardProject.Repository
                 return null;
             }
         }
+
+        public async Task<List<DashboardCardInfoDetailsDto>> GetDashboardCardDetailsByCardType(string channelID, string fromDate, string toDate, int cardType)
+        {
+            SqlParameter[] arrSqlParam = new SqlParameter[3]
+                {
+                    new SqlParameter()
+                    {
+                        ParameterName = "@channelID",
+                        SqlDbType = SqlDbType.NVarChar,
+                        Value = channelID
+                    },
+                    new SqlParameter()
+                    {
+                        ParameterName = "@fromDate",
+                        SqlDbType = SqlDbType.NVarChar,
+                        Value = fromDate
+                    },
+                    new SqlParameter()
+                    {
+                        ParameterName = "@toDate",
+                        SqlDbType = SqlDbType.NVarChar,
+                        Value = toDate
+                    }
+                };
+
+            SqlParameter[] arrChildSqlParam = new SqlParameter[3]
+            {
+                new SqlParameter()
+                {
+                    ParameterName = "@channelID",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Value = channelID
+                },
+                new SqlParameter()
+                {
+                    ParameterName = "@fromDate",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Value = fromDate
+                },
+                new SqlParameter()
+                {
+                    ParameterName = "@toDate",
+                    SqlDbType = SqlDbType.NVarChar,
+                    Value = toDate
+                }
+            };
+
+            string sql = string.Empty;
+            if (cardType == 1)
+            {
+                sql = "select CompanyName, convert(varchar(15),cast((sum(PendingOrderValueINR)/10000000) as decimal(19,2))) + 'Cr' as Value " +
+                    "from(select CompanyName, OrderNo, DocOpenDate as OrderDate, BuyersOrderNo, BuyersOrderDate, CustomerName, " +
+                    "MerchantName, Country, ProductNo, ProductName, BuyersProductNo, BuyersProductName, OrderQty, InvoicedQty, " +
+                    "PendingQty, PAChannel, PAQty, DNQty, GUDQty, DocDueDate as DueDate, OrderValueFC, OrderValueINR, " +
+                    "InvoicedValueFC, PendingOrderValueFC, PendingOrderValueINR, Currency, Status, CurrentExRate " +
+                    "from PendingExportOrderData where ChannelID IN(select value from udf_SplitString(@channelID,',')) " +
+                    "AND (docduedate>= CONVERT(date, @fromDate, 103) " +
+                    "AND docduedate <Dateadd(DAY, 1, CONVERT(date, @toDate, 103)) )) as Main " +
+                    "group by CompanyName having cast((sum(PendingOrderValueINR)/10000000) as decimal(19,2))>0";
+            }
+            else if (cardType == 5)
+            {
+                sql = "select DomasticSalesReport.ChannelID,ChannelName as CompanyName, " +
+                    "convert(varchar(12),cast((sum(ProdAssessableValue)/ 10000000) AS decimal(19, 2))) + 'Cr' as  Value " +
+                    "from DomasticSalesReport " +
+                    "inner join Channels on DomasticSalesReport.ChannelID = Channels.ChannelID " +
+                    "where DomasticSalesReport.ChannelID IN(select value from udf_SplitString(@channelID,',')) " +
+                    "AND(AccTransDate >= CONVERT(date, @fromDate, 103) AND AccTransDate <= CONVERT(date, @toDate, 103)) " +
+                    "AND ContactId not in(select CustomerID from EllementryGroupCustomer) " +
+                    "GROUP BY DomasticSalesReport.ChannelID,ChannelName " +
+                    "having cast((sum(ProdAssessableValue) / 10000000) AS decimal(19, 2)) > 0";
+            }
+            else if (cardType == 6)
+            {
+                sql = "select [SubChannel] as CompanyName,convert(varchar(12),cast(sum(a1.[Pending Domestic Orders]) as decimal(19,2))) + 'Cr' AS Value " +
+                    "from (select isnull(b.ChannelName,Y.ChannelName) as [MainChannel],Y.ChannelName as [SubChannel],a.docid, " +
+                    "a.DocNum,a.InvoiceDate,a.channelid,a.[Pending Domestic Orders],a.GrossAmount,a.docamount  from PendingDomesticOrder a " +
+                    "inner join DileepSubDB.dbo.ChannelsHirarchy Y on rtrim(cast(a.ChannelId as nvarchar(22)))=rtrim(Y.ChannelId) " +
+                    "left join Channels b on rtrim(cast(b.ChannelID as nvarchar(22)))=rtrim(Y.ChannelParentID) " +
+                    "WHERE b.ChannelID in (select value from udf_SplitString(@channelID,',')) " +
+                    "and convert(datetime,a.InvoiceDate,103) between CONVERT(date, @fromDate, 103) and CONVERT(date, @toDate, 103) " +
+                    " AND ContactId not in(select CustomerID from EllementryGroupCustomer) " +
+                    "group by b.ChannelName,Y.ChannelName,Y.ChannelName,a.docid,a.DocNum,a.InvoiceDate,a.channelid, " +
+                    "a.[Pending Domestic Orders],a.GrossAmount,a.docamount ) a1 group by [SubChannel] ";
+            }
+            else if (cardType == 8)
+            {
+                sql = "select DomasticSalesReport.ChannelID,ChannelName as CompanyName, " +
+                    "convert(varchar(12),cast((sum(ProdAssessableValue)/ 10000000) AS decimal(19, 2))) + 'Cr' as  Value " +
+                    "from DomasticSalesReport " +
+                    "inner join Channels on DomasticSalesReport.ChannelID = Channels.ChannelID " +
+                    "where DomasticSalesReport.ChannelID IN(select value from udf_SplitString(@channelID,',')) " +
+                    "AND(AccTransDate >= CONVERT(date, @fromDate, 103) " +
+                    "AND AccTransDate <= CONVERT(date, @toDate, 103)) " +
+                    "AND ContactId in(select CustomerID from EllementryGroupCustomer where CustomerType=2) " +
+                    "GROUP BY DomasticSalesReport.ChannelID,ChannelName " +
+                    "having cast((sum(ProdAssessableValue) / 10000000) AS decimal(19, 2)) > 0";
+            }
+            else if (cardType == 9)
+            {
+                sql = "select [SubChannel] as CompanyName,convert(varchar(12),cast(sum(a1.[Pending Domestic Orders]) as decimal(19,2))) + 'Cr' AS Value " +
+                    "from (select isnull(b.ChannelName,Y.ChannelName) as [MainChannel],Y.ChannelName as [SubChannel],a.docid, " +
+                    "a.DocNum,a.InvoiceDate,a.channelid,a.[Pending Domestic Orders],a.GrossAmount,a.docamount  from PendingDomesticOrder a   " +
+                    "inner join DileepSubDB.dbo.ChannelsHirarchy Y on rtrim(cast(a.ChannelId as nvarchar(22)))=rtrim(Y.ChannelId) " +
+                    "left join Channels b on rtrim(cast(b.ChannelID as nvarchar(22)))=rtrim(Y.ChannelParentID)   " +
+                    "WHERE b.ChannelID in (select value from udf_SplitString(@channelID,','))  " +
+                    "and convert(datetime,a.InvoiceDate,103) between CONVERT(date, @fromDate, 103) and CONVERT(date, @toDate, 103) " +
+                    " AND ContactId in(select CustomerID from EllementryGroupCustomer where CustomerType=2) " +
+                    "group by b.ChannelName,Y.ChannelName,Y.ChannelName,a.docid,a.DocNum,a.InvoiceDate,a.channelid, " +
+                    "a.[Pending Domestic Orders],a.GrossAmount,a.docamount ) a1 group by [SubChannel] ";
+            }
+            else if (cardType == 2)
+            {
+                sql = "select ChannelID,CompanyName,convert(varchar(12), " +
+                    "cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2))) + 'Cr' as  Value, " +
+                    "ChildChannel.ChildChannelCount As hasChildChannel  from GUDData " +
+                    "Left Join(Select ChannelParentID, Count(*) As ChildChannelCount From Channels " +
+                    "Group By ChannelParentID) ChildChannel On GUDData.ChannelID = ChildChannel.ChannelParentID " +
+                    "where ChannelID IN (select value from udf_SplitString(@channelID,',')) AND docopendate >= CONVERT(date, @fromDate, 103) " +
+                    "AND docopendate <Dateadd(DAY, 1, CONVERT(date, @toDate, 103)) AND (isnull(LRNum, '')='' OR LrDate> CONVERT(date, @toDate, 103)) and BillLadingDate is null " +
+                    "group BY ChannelID,CompanyName, ChildChannel.ChildChannelCount " +
+                    "having cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2))>0";
+            }
+            else if(cardType == 3)
+            {
+                sql = "select ChannelID,CompanyName,convert(varchar(12),cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2))) + 'Cr' as  Value, "+
+                    "ChildChannel.ChildChannelCount As hasChildChannel from GITData " +
+                    "Left Join(Select ChannelParentID, Count(*) As ChildChannelCount From Channels " +
+                    "Group By ChannelParentID) ChildChannel On GITData.ChannelID = ChildChannel.ChannelParentID " +
+                    "where ChannelID IN (select value from udf_SplitString(@channelID,',')) AND LRDate >= CONVERT(date, @fromDate, 103) " +
+                    "AND LRDate < Dateadd(DAY, 1, CONVERT(date, @toDate, 103)) AND (BillLadingDate IS NULL OR BillLadingDate > CONVERT(date, @toDate, 103)) and LRDate IS NOT NULL " +
+                    "group BY ChannelID,CompanyName,ChildChannel.ChildChannelCount having cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2)) > 0";
+            }
+            else if(cardType == 4)
+            {
+                sql = "select ChannelID,CompanyName, convert(varchar(12),cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2))) + 'Cr' as  Value, " +
+                "ChildChannel.ChildChannelCount As hasChildChannel from ExportSalesData " +
+                "Left Join(Select ChannelParentID, Count(*) As ChildChannelCount From Channels " +
+                "Group By ChannelParentID) ChildChannel On ISNULL(ExportSalesData.ChannelID,ExportSalesData.DelChannelID) = ChildChannel.ChannelParentID " +
+                "where BILLLADINGDate >= CONVERT(date, @fromDate, 103) AND BILLLADINGDate < Dateadd(DAY, 1,CONVERT(date, @toDate, 103)) " +
+                "AND (ChannelID in(select value from udf_SplitString(@channelID,',')) OR DelChannelID in(select value from udf_SplitString(@channelID,','))) " +
+                "GROUP BY ChannelID,CompanyName,ChildChannel.ChildChannelCount having cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2)) > 0";
+
+            }
+
+            DAL<DashboardCardInfoDetailsDto> dal = new DAL<DashboardCardInfoDetailsDto>();
+            try
+            {
+                var result = (await dal.GetRecords(sql, CommandType.Text, arrSqlParam)).ToList();
+
+                if ((cardType == 2 || cardType == 3 || cardType == 4) && result.Count > 0)
+                {
+                    List<DashboardCardMoreInfoDetailsDto> childResult = new List<DashboardCardMoreInfoDetailsDto>();
+                    if (cardType == 2)
+                    {
+                        sql = "select ChannelID, UnitName, convert(varchar(12), cast((sum(ProdDocValueINR) / 10000000) AS decimal(19, 2))) +'Cr' as Value from GUDData " +
+                            "where ChannelID IN (select value from udf_SplitString(@channelID,',')) AND docopendate >= CONVERT(date, @fromDate, 103) " +
+                            "AND docopendate < Dateadd(DAY, 1,CONVERT(date, @toDate, 103)) AND (isnull(LRNum, '') = '' OR LrDate > CONVERT(date, @toDate, 103)) and BillLadingDate is null " +
+                            "group BY ChannelID, UnitName having cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2))>0";
+
+
+                    }
+                    else if (cardType == 3)
+                    {
+                        sql = "select ChannelID, UnitName,convert(varchar(12),cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2))) + 'Cr' as  Value from GITData " +
+                            "where ChannelID IN (select value from udf_SplitString(@channelID,',')) AND LRDate >= CONVERT(date, @fromDate, 103) " +
+                            "AND LRDate < Dateadd(DAY, 1,CONVERT(date, @toDate, 103)) AND (BillLadingDate IS NULL OR BillLadingDate > CONVERT(date, @toDate, 103)) and LRDate IS NOT NULL " +
+                            "group BY ChannelID,UnitName having cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2)) > 0";
+                    }
+                    else if (cardType == 4)
+                    {
+                        sql = "select ISNULL(ChannelID,DelChannelID) As ChannelID, UnitName, convert(varchar(12),cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2))) + 'Cr' as  Value " +
+                            "from ExportSalesData " +
+                            "where BILLLADINGDate >= CONVERT(date, @fromDate, 103) AND BILLLADINGDate<Dateadd(DAY, 1,CONVERT(date, @toDate, 103)) " +
+                            "AND (ChannelID in(select value from udf_SplitString(@channelID,',')) OR DelChannelID in(select value from udf_SplitString(@channelID,','))) " +
+                            "GROUP BY ISNULL(ChannelID,DelChannelID),UnitName having cast((sum(ProdDocValueINR)/ 10000000) AS decimal(19, 2))>0";
+                    }
+                    
+
+                    DAL<DashboardCardMoreInfoDetailsDto> dalChild = new DAL<DashboardCardMoreInfoDetailsDto>();
+                    childResult = (await dalChild.GetRecords(sql, CommandType.Text, arrChildSqlParam)).ToList();
+
+                    foreach (var row in result)
+                    {
+                        if (row.hasChildChannel)
+                        {
+                            var childRows = childResult.Where(x => x.ChannelId == row.ChannelId).ToList();
+                            if (childResult != null)
+                            {
+                                row.childInfo = childRows;
+                            }
+                        }
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }
